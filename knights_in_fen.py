@@ -68,13 +68,17 @@ def dfs(board, pr, pc, move_count, move_limit):
             if abs(offr) == abs(offc):
                 continue
             
-            if pr == r + offr and pc == c + offc:
+            tr = r + offr
+            tc = c + offc
+            if pr == tr and pc == tc:
                 continue
 
-            if(check_bound(r + offr, c + offc)):
-                swap(board, r, c, r + offr, c + offc)
-                ans.append(dfs(board, r, c, move_count + 1, move_limit))
-                swap(board, r, c, r + offr, c + offc)
+            if(check_bound(tr, tc)):
+                swap(board, r, c, tr, tc)
+                res = dfs(board, r, c, move_count + 1, move_limit)
+                if res != -1:
+                    ans.append(res)
+                swap(board, r, c, tr, tc)
     
     if len(ans) > 0:
         return min(ans)
@@ -120,7 +124,7 @@ def bfs(oboard, move_limit):
 N = int(sys.stdin.readline().strip())
 
 for n in range(N):
-    limit = 5
+    limit = 10
 
     board = []
     for i in range(5):
