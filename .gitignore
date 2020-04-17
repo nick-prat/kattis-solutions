@@ -1,1 +1,4 @@
 *.txt
+*.in
+.vscode
+test.py
