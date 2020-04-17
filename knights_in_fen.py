@@ -1,5 +1,8 @@
 import sys, math
 
+move_set = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]
+move_limit = 10
+
 def board_string(board):
     new = "" 
   
@@ -39,101 +42,69 @@ def splitstr(line):
     return [char for char in line]
 
 def check_board(board):
-    for r in range(5):
-        for c in range(0,r+1 if r > 2 else r):
-            if board[r][c] != '0':
-                return False
-
-        for c in range(r+1 if r > 2 else r,5):
-            if r == 2 and c == 2:
-                if board[r][c] != ' ':
-                    return False
-                continue
-
+    for r in range(2):
+        for c in range(r, 5):
             if board[r][c] != '1':
                 return False
+
+    if board[2][2] != ' ':
+        return False
+
+    for r in range(2, 4):
+        for c in range(r+1, 5):
+            if board[r][c] != '1':
+                return False
+    
     return True
 
-def dfs(board, pr, pc, er, ec, move_count, move_limit):
+def num_wrong(board):
+    w = 0
+    for r in range(2):
+        for c in range(r, 5):
+            if board[r][c] == '0':
+                w += 1
+
+    for r in range(2, 4):
+        for c in range(r+1, 5):
+            if board[r][c] == '0':
+                w += 1
+
+    return w
+
+def dfs(board, pr, pc, er, ec, move_count, move_lim):
     if check_board(board):
         return move_count
     
-    if move_count >= move_limit:
+    if move_count + num_wrong(board) >= move_lim:
         return -1
 
     ans = []
-    for offr in [-2,-1,1,2]:
-        for offc in [-2,-1,1,2]:
-            if abs(offr) == abs(offc):
-                continue
-            
-            tr = er + offr
-            tc = ec + offc
-            if pr == tr and pc == tc:
-                continue
+    for offr, offc in move_set:
+        tr = er + offr
+        tc = ec + offc
+        if pr == tr and pc == tc:
+            continue
 
-            if(check_bound(tr, tc)):
-                swap(board, er, ec, tr, tc)
-                res = dfs(board, er, ec, tr, tc, move_count + 1, move_limit)
-                if res != -1:
-                    ans.append(res)
-                swap(board, er, ec, tr, tc)
+        if(check_bound(tr, tc)):
+            swap(board, er, ec, tr, tc)
+            res = dfs(board, er, ec, tr, tc, move_count + 1, move_lim)
+            if res != -1:
+                ans.append(res)
+            swap(board, er, ec, tr, tc)
     
     if len(ans) > 0:
         return min(ans)
     return -1
 
-def bfs(oboard, move_limit):
-    queue = []
-    r, c = find_empty(oboard)
-    queue.append([[r, c]])
-
-    while(len(queue) > 0):
-        board = copy_board(oboard)
-        moves = queue.pop(0)
-
-        pr, pc = 0, 0
-        for move in moves:
-            nr, nc = move
-            pr, pc = find_empty(board)
-            swap(board, pr, pc, nr, nc)
-
-        if check_board(board):
-            return len(moves) - 1
-
-        if len(moves) >= move_limit + 1:
-            continue
-        
-        r,c = find_empty(board)
-        for offr in [-2,-1,1,2]:
-            for offc in [-2,-1,1,2]:
-                if abs(offr) == abs(offc):
-                    continue
-                
-                if pr == r + offr and pc == c + offc:
-                    continue
-
-                if(check_bound(r + offr, c + offc)):
-                    nmoves = moves.copy()
-                    nmoves.append([r + offr, c + offc])
-                    queue.append(nmoves)
-
-    return -1
-
 N = int(sys.stdin.readline().strip())
 
 for n in range(N):
-    limit = 10
-
-    board = []
-    for i in range(5):
-        board.append(splitstr(sys.stdin.readline().strip('\n')))
+    board = [splitstr(sys.stdin.readline().strip('\n')) for i in range(5)]
     
-    # ans = bfs(board, 10)
     r, c = find_empty(board)
-    ans = dfs(board, r, c, r, c, 0, limit)
+    ans = dfs(board, r, c, r, c, 0, move_limit)
 
     if ans != -1:
         print("Solvable in {} move(s).".format(ans))
     else:
-        print("Unsolvable in less than {} move(s).".format(limit))
+        print("Unsolvable in less than {} move(s).".format(move_limit + 1))
