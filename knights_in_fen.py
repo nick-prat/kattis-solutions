@@ -54,7 +54,7 @@ def check_board(board):
                 return False
     return True
 
-def dfs(board, pr, pc, move_count, move_limit):
+def dfs(board, pr, pc, er, ec, move_count, move_limit):
     if check_board(board):
         return move_count
     
@@ -62,23 +62,22 @@ def dfs(board, pr, pc, move_count, move_limit):
         return -1
 
     ans = []
-    r, c = find_empty(board)
     for offr in [-2,-1,1,2]:
         for offc in [-2,-1,1,2]:
             if abs(offr) == abs(offc):
                 continue
             
-            tr = r + offr
-            tc = c + offc
+            tr = er + offr
+            tc = ec + offc
             if pr == tr and pc == tc:
                 continue
 
             if(check_bound(tr, tc)):
-                swap(board, r, c, tr, tc)
-                res = dfs(board, r, c, move_count + 1, move_limit)
+                swap(board, er, ec, tr, tc)
+                res = dfs(board, er, ec, tr, tc, move_count + 1, move_limit)
                 if res != -1:
                     ans.append(res)
-                swap(board, r, c, tr, tc)
+                swap(board, er, ec, tr, tc)
     
     if len(ans) > 0:
         return min(ans)
@@ -132,7 +131,7 @@ for n in range(N):
     
     # ans = bfs(board, 10)
     r, c = find_empty(board)
-    ans = dfs(board, r, c, 0, limit)
+    ans = dfs(board, r, c, r, c, 0, limit)
 
     if ans != -1:
         print("Solvable in {} move(s).".format(ans))
