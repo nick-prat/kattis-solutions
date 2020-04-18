@@ -32,12 +32,6 @@ def swap(board, r, c, nr, nc):
 def check_bound(r, c):
     return r < 5 and r >= 0 and c < 5 and c >= 0
 
-def copy_board(board):
-    nboard = []
-    for row in board:
-        nboard.append(row.copy())
-    return nboard
-
 def splitstr(line):
     return [char for char in line]
 
